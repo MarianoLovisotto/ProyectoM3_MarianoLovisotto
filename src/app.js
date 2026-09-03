@@ -7,6 +7,9 @@ function Home() {
         <section class ="home-view">
 
         <div class="hero-card">
+
+            <img src="/src/Gojo.logo.png" alt="Gojo logo" class="hero-logo" />
+
             <h1>Gojo Chat</h1>
 
             <p class="hero-text">
@@ -25,32 +28,39 @@ function Home() {
 function About() {
     return `
     <section class="about-view">
-        <div class="about-card">
-            <h2>Acerca de Gojo Chat</h2>
 
-            <p>
-            Gojo Chat es una SPA desarrollada con JavaScript Vanilla,
-            History API y Gemini AI.
-            </p>
+    <div class="about-card">
 
-            <p>
-            La web te permite simular un chat con el mago más fuerte de la actualidad,
-            junto con su gran sentido del humor y cinismo...
-            </p>
+        <div class="character-card">
+            <img src="/src/Gojo.log.png" alt="Gojo logo" class="character-logo"/>
 
-            <p>
-            Teconologías utilizadas:
-            </p>
-
-            <ul>
-                <li>HTML5</li>
-                <li><CSS3/li>
-                <li>JavaScript Vanilla</li>
-                <li>Vercel Functions</li>
-                <li>Gemini AI</li>
-                <li>Vitest</li>
-            </ul>
+            <div>
+                <span class="character-label">Conoce al personaje</span>
+                <h2>Gojo Satoru</h2>
+                <p>El hechicero mas fuerte de la actualidad, pero no es solo fuerte;
+                también es: gracioso, guapo y con un gran sentido de la moda... y para nada me obligo a escribir esto</p>
+            </div>
         </div>
+        
+        <h3>Acerca de Gojo Chat</h3>
+        
+        <p>Gojo Chat es una SPA desarrollada con JavaScript Vanilla, History API y Gemini AI.</p>
+        <p>La web busca imitar lo que sería una conversación con el hechiero mas ferte de la actualidad.</p>
+
+        <p>Teconologías utilizadas:</p>
+
+        <ul>
+            <li>HTML5</li>
+            <li>CSS3</li>
+            <li>JavaScript Vanilla</li>
+            <li>Vercel Functions</li>
+            <li>Gemini AI</li>
+            <li>Vitest</li>
+        </ul>
+
+    </div>
+    
+    
     </section>
     `;
 }
@@ -87,6 +97,7 @@ function setupChatEvents() {
     const clearBtn = document.getElementById("clear-btn");
 
     if(!input || !button || !clearBtn) return;
+    input.focus();
 
     button.addEventListener("click", handleSend);
 
@@ -226,11 +237,9 @@ async function handleSend() {
         updateLastMessage(data.reply)
 
     } catch(error) {
-        const msgs = getMessages();
-        msgs[msgs.length - 1].content =
-        "Error al contactar con Gojo";
+        updateLastMessage("No se pudo contactar con Gojo en este momento.");
 
-        showChatAlert("Hay un problema con la red. Revise su internet y pruebe nuevamente");
+        showChatAlert("No se pudo contactar con Gojo en este momento. Intente luego de unos minutos.");
 
     } finally {
         button.disabled = false;

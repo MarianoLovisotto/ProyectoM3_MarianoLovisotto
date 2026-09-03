@@ -1,4 +1,4 @@
-const savedMessages = JSON.parse(localStorage.getItem("Spider-chat")) || [];
+const savedMessages = JSON.parse(localStorage.getItem("gojo-chat")) || [];
 
 const messages = savedMessages.filter(
     (msg) => msg.content !== "Escribiendo..."
