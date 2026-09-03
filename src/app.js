@@ -4,25 +4,61 @@ const view = document.getElementById("view");
 
 function Home() {
     return `
-        <div class="home-view">
-            <h2>Gojo Chat</h2>
-            <p>Chatea con el único e inigualable Gojo Satoru</p>
+        <section class ="home-view">
 
-            <a href="/chat" data-link class="start-btn"> Empezar Chat</a>
+        <div class="hero-card">
+            <h1>Gojo Chat</h1>
+
+            <p class="hero-text">
+            Habla con el único e inigualable Gojo Satoru
+            </p>
+
+            <a href="/chat" data-link class="start-btn">
+                Empezar chat
+            </a>
         </div>
+        
+        </section>
     `;
 }
 
 function About() {
     return `
-    <h2>About</h2>
-    <p>Proyecto SPA con Gemini AI</p>
+    <section class="about-view">
+        <div class="about-card">
+            <h2>Acerca de Gojo Chat</h2>
+
+            <p>
+            Gojo Chat es una SPA desarrollada con JavaScript Vanilla,
+            History API y Gemini AI.
+            </p>
+
+            <p>
+            La web te permite simular un chat con el mago más fuerte de la actualidad,
+            junto con su gran sentido del humor y cinismo...
+            </p>
+
+            <p>
+            Teconologías utilizadas:
+            </p>
+
+            <ul>
+                <li>HTML5</li>
+                <li><CSS3/li>
+                <li>JavaScript Vanilla</li>
+                <li>Vercel Functions</li>
+                <li>Gemini AI</li>
+                <li>Vitest</li>
+            </ul>
+        </div>
+    </section>
     `;
 }
 
 function Chat(){
     return `
         <div class="chat-view">
+        
             <div class="chat-header">
                 <div>
                 <h1>Gojo Satoru</h1>
@@ -33,7 +69,7 @@ function Chat(){
             <main class="chat-container" id="chat-container"></main>
 
             <footer class="chat-input">
-                <input id="message-input" placeholder="Escribe un mensaje"/>
+                <input id="message-input" placeholder="Escribe un mensaje" maxlength="300"/>
                 <button id="send-btn">Enviar</button>
             </footer>
 
@@ -53,7 +89,7 @@ function setupChatEvents() {
     button.addEventListener("click", handleSend);
 
     input.addEventListener("keypress", (e) => {
-        if(e.key === "Enter") handleSend();
+        if(e.key === "Enter" && !isSending) handleSend();
     });
 
 }
@@ -61,7 +97,7 @@ function setupChatEvents() {
 
 
 function renderMessages() {
-    const  chatContainer = document.getElementById("chat-container");
+    const chatContainer = document.getElementById("chat-container");
     if(!chatContainer) return;
     
     const messages = getMessages();
@@ -94,12 +130,25 @@ function renderMessages() {
 }
 
 
+let isSending = false;
+
 async function handleSend() {
+
+    if(isSending) return;
+    isSending = true;
+
     const input = document.getElementById("message-input");
     const button = document.getElementById("send-btn");
 
     const text = input.value.trim();
-    if(!text) return;
+    if(!text) {
+        input.focus();
+        isSending = false;
+        return;
+    }
+
+    button.disabled = true;
+
     
     addMessage("user", text);
     input.value = "";

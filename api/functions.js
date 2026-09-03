@@ -1,4 +1,18 @@
+const FALLBACK_REPLIES = [
+    "¿Eh? Se me fue el hilo.",
+    "Mmm... eso no salió bien.",
+    "Dame un segundo, ¿sí?",
+]
+
+function getRandomFallback() {
+    return FALLBACK_REPLIES[
+        Math.floor(Math.random() * FALLBACK_REPLIES.length)
+    ];
+}
+
 export default async function handler(req, res) {
+
+
     if(req.method !== "POST") {
         return res.status(405).json({
             error: "Method not allowed"
@@ -8,7 +22,27 @@ export default async function handler(req, res) {
     try {
         const { messages} = req.body;
 
+        if(!messages || !Array.isArray(messages)) {
+            return res.status(400).json({
+                error: "Mensajes inválidos",
+            });
+        }
+
+        const limitedMessages = messages.slice(-10);
+        
         const apiKey = process.env.GEMINI_API_KEY;
+
+        if(!apiKey) {
+            return res.status(500).json({
+                error: "Falta configurar GEMINI_API_KEY",
+            });
+        }
+
+        const controller = new AbortController();
+
+        const timeoutId = setTimeout(() => {
+            controller.abort();
+        }, 15000)
 
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`,
@@ -17,6 +51,7 @@ export default async function handler(req, res) {
                 headers: {
                     "Content-Type": "application/json",
                 },
+                signal: controller.signal,
                 body: JSON.stringify({
                     contents: [
                         {
@@ -61,60 +96,48 @@ export default async function handler(req, res) {
                             role: "model",
                             parts: [{text: "Entendido. Actuaré como Gojo Satoru"}],
                         },
-                        ...messages.map((msg) => ({
+                        ...limitedMessages.map((msg) => ({
                             role: msg.role === "user" ? "user" : "model",
                             parts: [{text: msg.content}],
                         })),
-                    ]
+                    ],
                 }),
             }
         );
+
+        clearTimeout(timeoutId);
+
         const data = await response.json();
 
-        if(data.error){
-            const fallbackReplies = [
-                "¿Eh? Se me fue el hilo.",
-                "Mmm... eso no salió bien.",
-                "Dame un segundo, ¿sí?"
-            ];
-
-            const randomReply = 
-            fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
-
-            return res.status(200).json({
-                reply: randomReply
+        if(data.error) {
+            
+            return res.status(500).json({
+                error:"Error de Gemini",
+                reply: getRandomFallback(),
             });
         }
 
-        console.log("GEMINI RESPONSE:", JSON.stringify(data));
-
-        let reply = "No puedo responder en este momento";
-
-    if (
-        data &&
-        data.candidates &&
-        data.candidates.length > 0 &&
-        data.candidates[0].content &&
-        data.candidates[0].content.parts && 
-        data.candidates[0].content.parts.length > 0
-    ) {
-        reply = data.candidates[0].content.parts[0].text;
-    }
+    
+        const reply =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "No tengo respuesta ahora mismo ";
 
         return res.status(200).json({reply});
     
+
+    
     } catch (error) {
-        const fallbackReplies = [
-                "¿Eh? Se me fue el hilo.",
-                "Mmm... eso no salió bien.",
-                "Dame un segundo, ¿sí?"
-            ];
-
-            const randomReply = 
-            fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
-
-            return res.status(200).json({
-                reply: randomReply
+        
+        if(error.name === "AbortError") {
+            return res.status(408).json({
+                error: "Timeout",
+                reply: "Estas atascado en mi vacío, intenta otra vez.",
             });
+        }
+
+        return res.status(500).json({
+            error: "Error interno",
+            reply: getRandomFallback(),
+        });
     }
 }
