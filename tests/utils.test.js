@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatMessage, isEmptyMessage, getLastMessage, addMessage, } from "../public/src/utils.js";
+import { formatMessage, isEmptyMessage, getLastMessage, addMessage, } from "../src/utils.js";
 
 describe("utils", () => {
     it("formatMessage elimina espacios", () => {

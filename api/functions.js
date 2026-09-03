@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { messages} = req.body;
+        const { messages } = req.body;
 
         if(!messages || !Array.isArray(messages)) {
             return res.status(400).json({

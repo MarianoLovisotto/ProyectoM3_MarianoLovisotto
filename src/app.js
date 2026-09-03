@@ -129,12 +129,30 @@ function renderMessages() {
     }
 }
 
+function showChatAlert(message) {
+    const alert = document.getElementById("chat-alert");
+    if(!alert) return;
+
+    alert.textContent = message;
+    alert.classList.remove("hidden");
+}
+
+function hideChatAlert() {
+    const alert = document.getElementById("chat-alert");
+    if(!alert) return;
+
+    alert.textContent = "";
+    alert.classList.add("hidden");
+}
+
+const DEBUG_FORCE_ERROR = false; // Pueden testear el mensaje de error al modificarlo por true
 
 let isSending = false;
 
 async function handleSend() {
 
     if(isSending) return;
+    hideChatAlert();
     isSending = true;
 
     const input = document.getElementById("message-input");
@@ -154,20 +172,34 @@ async function handleSend() {
     input.value = "";
     renderMessages();
 
-    addMessage("bot", "...");
+    addMessage("bot", "Escribiendo...");
     renderMessages();
 
     const chatContainer = document.getElementById("chat-container");
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     try {
-        const messages = getMessages();
+        const messages = getMessages().filter((msg) => msg.content !== "Escribiendo..."
+    );
+
+        if(DEBUG_FORCE_ERROR) {
+            throw new Error("Error forzado para probar aviso visual")
+        }
+
+        const controller = new AbortController();
+
+        const timeoutId = setTimeout(() => {
+            controller.abort();
+        }, 15000);
 
         const response = await fetch("/api/functions", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({ messages }),
+            signal: controller.signal,
         });
+
+        clearTimeout(timeoutId);
 
         const data = await response.json();
 
@@ -179,8 +211,12 @@ async function handleSend() {
         const msgs = getMessages();
         msgs[msgs.length - 1].content =
         "Error al contactar con Gojo";
+
+        showChatAlert("Hay un problema con la red. Revise su internet y pruebe nuevamente");
+
     } finally {
         button.disabled = false;
+        isSending = false
     }
 
     renderMessages();
