@@ -1,4 +1,4 @@
-import { addMessage, getMessages } from "./chat.js";
+import { addMessage, clearMessages, getMessages, updateLastMessage } from "./chat.js";
 
 const view = document.getElementById("view");
 
@@ -71,6 +71,7 @@ function Chat(){
             <footer class="chat-input">
                 <input id="message-input" placeholder="Escribe un mensaje" maxlength="300"/>
                 <button id="send-btn">Enviar</button>
+                <button id="clear-btn">Borrar</button>
             </footer>
 
         </div>
@@ -83,10 +84,16 @@ function setupChatEvents() {
 
     const input = document.getElementById("message-input");
     const button = document.getElementById("send-btn");
+    const clearBtn = document.getElementById("clear-btn");
 
-    if(!input || !button) return;
+    if(!input || !button || !clearBtn) return;
 
     button.addEventListener("click", handleSend);
+
+    clearBtn.addEventListener("click", () => {
+        clearMessages();
+        renderMessages();
+    })
 
     input.addEventListener("keypress", (e) => {
         if(e.key === "Enter" && !isSending) handleSend();
@@ -119,8 +126,21 @@ function renderMessages() {
     messages.forEach((msg) => {
         
         const div = document.createElement("div");
+        
         div.classList.add("message", msg.role === "user" ? "user" : "bot")
-        div.textContent = msg.content;
+        
+        if(msg.role === "bot") {
+            div.innerHTML = `
+                <div class="bot-message-content">
+                    <img src="src/Gojo.logo.png" alt="Gojo Logo" class="bot-logo"/>
+                    <span>${msg.content}</span>
+                </div>
+
+            `;
+        }else {
+            div.textContent = msg.content;
+        }
+
         chatContainer.appendChild(div);
     });
 
@@ -203,10 +223,8 @@ async function handleSend() {
 
         const data = await response.json();
 
+        updateLastMessage(data.reply)
 
-        const msgs = getMessages();
-        msgs[msgs.length - 1].content = data.reply;
-        
     } catch(error) {
         const msgs = getMessages();
         msgs[msgs.length - 1].content =
