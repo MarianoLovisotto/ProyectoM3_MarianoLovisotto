@@ -38,6 +38,8 @@ function Chat(){
 }
 
 
+
+
 function renderMessages() {
     const  chatContainer = document.getElementById("chat-container");
     if(!chatContainer) return;
@@ -49,6 +51,8 @@ function renderMessages() {
         '<p class="empty-message">Empieza tu chat con Gojo Satoru.</p>';
         return;
     }
+
+    const shouldScroll = isNearBottom(chatContainer)
 
     chatContainer.innerHTML = "";
 
@@ -64,7 +68,9 @@ function renderMessages() {
         chatContainer.appendChild(div);
     });
 
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    if(shouldScroll) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 }
 
 function setupChatEvents() {
@@ -74,36 +80,35 @@ function setupChatEvents() {
 
     if(!input || !button) return;
 
-    async function handleSend(){
-        const text = input.value.trim();
-        if(!text) return;
-
-        addMessage("user", text);
-        input.value = "";
-        renderMessages();
-        addMessage("bot", "...");
-        renderMessages();
-    
-        try {
-            await new Promise((res) => setTimeout(res, 1000));
-            
-            const messages = getMessages();
-            messages[messages.length - 1].content =
-            "Frase de Gojo de prueba";
-        } catch {
-            const messages = getMessages();
-            messages[messages.length - 1].content =
-            "Frase de Gojo de error";
-        }
-        
-        renderMessages();
-    }
     button.addEventListener("click", handleSend);
+
     input.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-            handleSend();
-        }
+        if(e.key === "Enter") handleSend();
     });
+
+}
+
+async function handleSend() {
+    const input = document.getElementById("message-input");
+    const text = input.value.trim();
+    if(!text) return;
+    
+    addMessage("user", text);
+    input.value = "";
+    renderMessages();
+
+    addMessage("bot", "...");
+    renderMessages();
+
+    const chatContainer = document.getElementById("chat-container");
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    await new Promise((res) => setTimeout(res, 800));
+
+    const messages = getMessages();
+    messages[messages.length - 1].content = " Mensaje de Prueba";
+
+    renderMessages();
 }
 
 function router() {
@@ -119,7 +124,6 @@ function router() {
         view.innerHTML = About();
     }else{
         view.innerHTML = "<h2>404</h2>"
-
     }
 }
 document.addEventListener("click", (e) =>{
@@ -137,3 +141,10 @@ window.addEventListener("popstate", router);
 
 
 router();
+
+function isNearBottom(container) {
+    const threshold = 50;
+    return (
+        container.scrollHeight - container.scrollTop - container.clientHeight < threshold
+    );
+}
