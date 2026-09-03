@@ -198,7 +198,7 @@ body {
 .chat-input input::placeholder{
     color: #9ca3af;
 }
-.chat-input:focus {
+.chat-input input:focus {
     outline: 2px solid var(--gojo-purple-light);
 }
 
@@ -226,10 +226,10 @@ body {
     text-align: center;
 }
 
-.star-btn {
+.start-btn {
     padding: 12px 20px;
     border-radius: 20px;
-    background: #ef4444;
+    background: var(--gojo-purple-dark);
     color: white;
     text-decoration: none;
     transition: 0.2s
@@ -324,6 +324,13 @@ body {
 .about-card ul {
     padding-left: 18px;
     color: #d1d5db;
+    list-style: none;
+}
+
+.about-card li::before {
+    content: "✦";
+    color: var(--gojo-purple);
+    margin-right: 8px;
 }
 
 .about-card p{
@@ -392,7 +399,7 @@ body {
         padding-inline: 24px
     }
 
-    .home-view h2 {
+    .home-view h1 {
         font-size: 42px;
     }
 
@@ -478,7 +485,7 @@ body::before{
 
     background-color: rgba(239, 68, 68, 0.12);
 
-    border: 1px solid rgba(239, 68, 68, 0.45);
+    border: 1px solid var(--gojo-purple-glow);
 
     object-fit: contain;
 
@@ -486,7 +493,7 @@ body::before{
 
     scale: 1.7;
 
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.18);
+    box-shadow: 0 0 12px var(--gojo-purple-glow);
 }
 
 #clear-btn {
@@ -518,7 +525,7 @@ body::before{
     border-radius: 20px;
 
     background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.25);
+    border: 1px solid var(--gojo-purple-light);
 }
 
 .character-logo {
@@ -528,7 +535,7 @@ body::before{
 
     border-radius: 50%;
     background: rgba(239, 68, 68, 0.12);
-    border: 1px solid rgba(239, 68, 68, 0.45);
+    border: 1px solid var(--gojo-purple-glow);
 
     object-fit: contain;
     flex-shrink: 0;
@@ -559,14 +566,14 @@ body::before{
 
     background: rgba(239, 68, 68, 0.10);
 
-    border: 1px solid rgba(239, 68, 68, 0.35);
+    border: 1px solid var(--gojo-purple-glow);
 
     object-fit: contain;
 
     display: block;
     margin: 0 auto 18px auto;
 
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);
+    box-shadow: 0 0 20px var(--gojo-purple-glow);
 }
 
 @media (max-width: 480px) {

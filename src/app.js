@@ -32,7 +32,7 @@ function About() {
     <div class="about-card">
 
         <div class="character-card">
-            <img src="/src/Gojo.log.png" alt="Gojo logo" class="character-logo"/>
+            <img src="/src/Gojo.logo.png" alt="Gojo logo" class="character-logo"/>
 
             <div>
                 <span class="character-label">Conoce al personaje</span>
