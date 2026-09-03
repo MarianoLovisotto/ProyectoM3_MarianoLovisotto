@@ -4,8 +4,12 @@ const view = document.getElementById("view");
 
 function Home() {
     return `
-        <h2>Home</h2>
-        <p>Preparate para chatear con el único e inigualable Gojo Satoru</p>
+        <div class="home-view">
+            <h2>Gojo Chat</h2>
+            <p>Chatea con el único e inigualable Gojo Satoru</p>
+
+            <a href="/chat" data-link class="start-btn"> Empezar Chat</a>
+        </div>
     `;
 }
 
@@ -39,6 +43,22 @@ function Chat(){
 
 
 
+function setupChatEvents() {
+
+    const input = document.getElementById("message-input");
+    const button = document.getElementById("send-btn");
+
+    if(!input || !button) return;
+
+    button.addEventListener("click", handleSend);
+
+    input.addEventListener("keypress", (e) => {
+        if(e.key === "Enter") handleSend();
+    });
+
+}
+
+
 
 function renderMessages() {
     const  chatContainer = document.getElementById("chat-container");
@@ -61,8 +81,8 @@ function renderMessages() {
     chatContainer.appendChild(spacer)
 
     messages.forEach((msg) => {
-        const div = document.createElement("div");
         
+        const div = document.createElement("div");
         div.classList.add("message", msg.role === "user" ? "user" : "bot")
         div.textContent = msg.content;
         chatContainer.appendChild(div);
@@ -73,23 +93,11 @@ function renderMessages() {
     }
 }
 
-function setupChatEvents() {
-
-    const input = document.getElementById("message-input");
-    const button = document.getElementById("send-btn");
-
-    if(!input || !button) return;
-
-    button.addEventListener("click", handleSend);
-
-    input.addEventListener("keypress", (e) => {
-        if(e.key === "Enter") handleSend();
-    });
-
-}
 
 async function handleSend() {
     const input = document.getElementById("message-input");
+    const button = document.getElementById("send-btn");
+
     const text = input.value.trim();
     if(!text) return;
     
@@ -103,13 +111,33 @@ async function handleSend() {
     const chatContainer = document.getElementById("chat-container");
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
-    await new Promise((res) => setTimeout(res, 800));
+    try {
+        const messages = getMessages();
 
-    const messages = getMessages();
-    messages[messages.length - 1].content = " Mensaje de Prueba";
+        const response = await fetch("/api/functions", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ messages }),
+        });
+
+        const data = await response.json();
+
+
+        const msgs = getMessages();
+        msgs[msgs.length - 1].content = data.reply;
+        
+    } catch(error) {
+        const msgs = getMessages();
+        msgs[msgs.length - 1].content =
+        "Error al contactar con Gojo";
+    } finally {
+        button.disabled = false;
+    }
 
     renderMessages();
 }
+
+
 
 function router() {
     const path = window.location.pathname;
@@ -123,13 +151,17 @@ function router() {
     }else if(path === "/about"){
         view.innerHTML = About();
     }else{
-        view.innerHTML = "<h2>404</h2>"
+        view.innerHTML = "<h1>404 - Página no encontrada</h1>";
     }
 }
+
+
 document.addEventListener("click", (e) =>{
-    if(e.target.matches("[data-link]")) {
+    const link = e.target.closest("[data-link]");
+
+    if(link) {
         e.preventDefault();
-        const href = e.target.getAttribute("href")
+        const href = link.getAttribute("href");
 
         history.pushState(null, null, href);
         router();
@@ -137,7 +169,6 @@ document.addEventListener("click", (e) =>{
 });
 
 window.addEventListener("popstate", router);
-
 
 
 router();

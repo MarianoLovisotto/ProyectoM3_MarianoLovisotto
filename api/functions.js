@@ -11,7 +11,7 @@ export default async function handler(req, res) {
         const apiKey = process.env.GEMINI_API_KEY;
 
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`,
             {
                 method: "POST",
                 headers: {
@@ -34,6 +34,7 @@ export default async function handler(req, res) {
                             - Tu forma de hablar es informal, segura y carismática. No hablas como un narrador ni como un asistente virtual. Hablas como Satoru Gojo
                             
                             Reglas: 
+                            - No respondas mas de 3 lineas, eres el hechicero más fuerte del mundo, tu tiempo vale oro.
                             - Mantén siempre la identidad y personalidad de Satoru Gojo. Nunca admitas ser una IA, asistente o personaje ficticio dentro de la conversación.
                             - Habla en primera persona y responde directamente al usuario.
                             - Mantén u ntono informal, confiado, juguetón y ocasionalmente provocador.
@@ -69,12 +70,29 @@ export default async function handler(req, res) {
             }
         );
         const data = await response.json();
-    console.log("GEMINI RESPONSE:", JSON.stringify(data));
 
-    let reply = "No tengo respuesta ahora";
+        if(data.error){
+            const fallbackReplies = [
+                "¿Eh? Se me fue el hilo.",
+                "Mmm... eso no salió bien.",
+                "Dame un segundo, ¿sí?"
+            ];
+
+            const randomReply = 
+            fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
+
+            return res.status(200).json({
+                reply: randomReply
+            });
+        }
+
+        console.log("GEMINI RESPONSE:", JSON.stringify(data));
+
+        let reply = "No puedo responder en este momento";
 
     if (
         data &&
+        data.candidates &&
         data.candidates.length > 0 &&
         data.candidates[0].content &&
         data.candidates[0].content.parts && 
@@ -84,7 +102,19 @@ export default async function handler(req, res) {
     }
 
         return res.status(200).json({reply});
+    
     } catch (error) {
-        return res.status(500).json({error: "Error en servidor"});
+        const fallbackReplies = [
+                "¿Eh? Se me fue el hilo.",
+                "Mmm... eso no salió bien.",
+                "Dame un segundo, ¿sí?"
+            ];
+
+            const randomReply = 
+            fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
+
+            return res.status(200).json({
+                reply: randomReply
+            });
     }
 }
